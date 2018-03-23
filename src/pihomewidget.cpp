@@ -79,7 +79,9 @@ void PiHomeWidget::on_buttonExport_clicked()
 
 void PiHomeWidget::on_buttonImport_clicked()
 {
-    if (QMessageBox::Ok != QMessageBox::warning(this, "warning", "This operation will overwrite your current address and keys, go on import?"), QMessageBox::Ok) {
+    if (QMessageBox::Ok != QMessageBox::warning(this,
+            "warning", "This operation will overwrite your current address and keys, go on import?",
+            QMessageBox::Ok | QMessageBox::Cancel)) {
         return;
     }
     QString def_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
@@ -87,14 +89,14 @@ void PiHomeWidget::on_buttonImport_clicked()
     if (path.isNull()) {
         return;
     }
-    PiWallet::GetWallet()->Import("/Users/carl/Desktop/wallet.json");
+    PiWallet::GetWallet()->Import(path.toStdString());
     SwitchAccount();
     UpdateBalance();
 }
 
 void PiHomeWidget::on_buttonAbout_clicked()
 {
-    QMessageBox::about(this, "About", "π cold wallet.\nv0.1.0\n\n\n© pidiscovery\n2016-2018");
+    QMessageBox::about(this, "About", "π cold wallet.\nv0.1.1\n\n\n© pidiscovery\n2016-2018");
 }
 
 void PiHomeWidget::on_buttonCopyAddress_clicked()
