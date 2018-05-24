@@ -33,6 +33,8 @@ private slots:
 
     void on_buttonRefreshBalance_clicked();
 
+    void on_commandLinkButtonVote_clicked();
+
 private:
     Ui::PiHomeWidget *ui;
     std::shared_ptr<PiWebsocketClient> client;

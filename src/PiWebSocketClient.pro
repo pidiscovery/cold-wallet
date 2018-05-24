@@ -46,16 +46,19 @@ SOURCES += \
     pihomewidget.cpp \
     piwebsocketclient.cpp \
     pichainutility.cpp \
-    piwallet.cpp
+    piwallet.cpp \
+    witnessvotedialog.cpp
 
 HEADERS += \
     pihomewidget.h \
     piwebsocketclient.h \
     pichainutility.h \
-    piwallet.h
+    piwallet.h \
+    witnessvotedialog.h
 
 FORMS += \
-    pihomewidget.ui
+    pihomewidget.ui \
+    witnessvotedialog.ui
 
 RESOURCES += \
     resource.qrc

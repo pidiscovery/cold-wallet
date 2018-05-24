@@ -65,6 +65,43 @@ nlohmann::json PiChainUtility::Transfer(
     return nlohmann::json::parse(fc::json::to_string(tx));
 }
 
+nlohmann::json PiChainUtility::VoteForWitness(
+        const std::string &sign_key,
+        const std::string &acc,
+        const std::string &old_options,
+        const std::string &witness_vote_id,
+        bool vote,
+        const std::string &block_id) {
+    graphene::chain::account_options ops;
+    graphene::chain::vote_id_type vote_id;
+    graphene::chain::account_id_type acc_id;
+    fc::from_variant(acc, acc_id);
+
+    fc::from_variant(fc::json::from_string(old_options), ops);
+    fc::from_variant(witness_vote_id, vote_id);
+
+    if (vote) {
+        ops.votes.insert(vote_id);
+    } else {
+        ops.votes.erase(vote_id);
+    }
+
+    graphene::chain::account_update_operation op;
+    op.fee = graphene::chain::asset(110);
+
+    op.account = acc_id;
+    op.new_options = ops;
+
+    graphene::chain::signed_transaction tx;
+    tx.set_reference_block(graphene::chain::block_id_type(block_id));
+    tx.set_expiration(fc::time_point_sec(fc::time_point::now()) + 30);
+    tx.operations.push_back(op);
+
+    tx.sign(*graphene::utilities::wif_to_key(sign_key), graphene::chain::chain_id_type("ae471be89b3509bf7474710dda6bf35d893387bae70402b54b616d72b83bc5a4"));
+
+    return nlohmann::json::parse(fc::json::to_string(tx));
+}
+
 bool PiChainUtility::IsPublicKey(const std::string &key) {
     return key.size() > 3 && key[0] =='P' && key[1] == 'I' && key[2] == 'C';
 //    try {

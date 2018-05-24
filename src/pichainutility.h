@@ -25,6 +25,15 @@ public:
             const std::string &block_id
     );
 
+    static nlohmann::json VoteForWitness(
+            const std::string &sign_key,
+            const std::string &acc,
+            const std::string &old_options,
+            const std::string &vote_id,
+            bool vote,
+            const std::string &block_id
+    );
+
     static bool IsPublicKey(const std::string &key);
     static std::tuple<std::string, std::string, std::string> GenerateAccount();
 };

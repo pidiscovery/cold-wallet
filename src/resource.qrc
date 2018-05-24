@@ -7,5 +7,7 @@
         <file>res/icons/copy.png</file>
         <file>res/icons/refresh.png</file>
         <file>res/icons/transfer.png</file>
+        <file>res/icons/icon.ico</file>
+        <file>res/icons/vote.png</file>
     </qresource>
 </RCC>

@@ -9,6 +9,7 @@
 #include <memory>
 //#include <future>
 #include <thread>
+#include <mutex>
 
 
 class PiWebsocketClient : public QObject
@@ -33,8 +34,10 @@ public:
     bool IsReady();
 
     void TransferTo(const std::string sign_key, const std::string &from, const std::string &to, uint64_t amount, const std::string &asset, std::function<void(bool)> cb);
-
     void TransferTo2(const std::string sign_key, const std::string &from, const std::string &to_pub_key, uint64_t amount, const std::string &asset, std::function<void(bool)> cb);
+
+    void VoteForWitness(const std::string &sign_key, const std::string &from, const std::string &witness_name, bool vote, std::function<void(bool)> cb);
+    void GetWitnessByName(const std::string &name, std::function<void(bool, const std::string&)> cb);
 
 signals:
     void login(bool ok);

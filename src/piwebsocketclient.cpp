@@ -80,6 +80,7 @@ int PiWebsocketClient::GetApiId(const std::string &api) {
         "get_dynamic_global_properties",
         "get_key_references",
         "get_objects",
+        "get_witness_by_account",
     };
     static const std::set<std::string> history = {
         "get_account_history",
@@ -364,25 +365,75 @@ void PiWebsocketClient::TransferTo2(
     GetAccountIdByName(from, [this, sign_key, to_pub_key, amount, cb](bool ok, const std::string &id){
         if (ok) {
             std::string from_id = id;
-                this->GetDynamiGlobalProperties([this, sign_key, from_id, amount, to_pub_key, cb](bool ok, const json &d){
-                    if (ok) {
-                        try {
+            this->GetDynamiGlobalProperties([this, sign_key, from_id, amount, to_pub_key, cb](bool ok, const json &d){
+                if (ok) {
+                    try {
+                        std::string block_id = d["head_block_id"].get<std::string>();
+                        auto tx = PiChainUtility::Transfer2(sign_key, from_id, to_pub_key, amount, "1.3.0", block_id);
+                        qDebug() << tx.dump(2).c_str();
+                        this->BroadcastTransaction(tx, [cb](bool ok, const json &d) {
+                            qDebug() << d.dump(2).c_str();
+                            cb(ok);
+                        });
+                    } catch (...) {
+                        cb(false);
+                    }
+                } else {
+                    cb(false);
+                }
+            });
+        } else {
+            cb(false);
+        }
+    });
+}
+
+void PiWebsocketClient::VoteForWitness(const std::string &sign_key, const std::string &from, const std::string &witness_name, bool vote, std::function<void(bool)> cb) {
+    GetAccountByName(from, [this, sign_key, from, vote, witness_name, cb](bool ok, const json &acc){
+        if (ok) {
+            this->GetWitnessByName(witness_name, [this, cb, sign_key, acc, vote](bool ok, const std::string &witness_vote_id){
+//                qDebug() << acc.dump(2).c_str();
+                qDebug() << witness_vote_id.c_str();
+                if (ok) {
+                    this->GetDynamiGlobalProperties([this, sign_key, vote, witness_vote_id, acc, cb](bool ok, const json &d){
+                        if (ok) {
                             std::string block_id = d["head_block_id"].get<std::string>();
-                            auto tx = PiChainUtility::Transfer2(sign_key, from_id, to_pub_key, amount, "1.3.0", block_id);
-                            qDebug() << tx.dump(2).c_str();
-                            this->BroadcastTransaction(tx, [cb](bool ok, const json &d) {
+                            auto signed_tx = PiChainUtility::VoteForWitness(sign_key, acc["id"].get<std::string>(), acc["options"].dump(2), witness_vote_id, vote, block_id);
+//                            qDebug() << signed_tx.dump(2).c_str();
+                            this->BroadcastTransaction(signed_tx, [this, cb](bool ok, const json &d) {
                                 qDebug() << d.dump(2).c_str();
                                 cb(ok);
                             });
-                        } catch (...) {
+                        } else {
                             cb(false);
                         }
-                    } else {
-                        cb(false);
-                    }
-                });
+                    });
+                } else {
+                    cb(false);
+                }
+            });
+
+
+
         } else {
+            qDebug() << "Get account " << from.c_str() << " fail";
             cb(false);
+        }
+    });
+}
+
+void PiWebsocketClient::GetWitnessByName(const std::string &name, std::function<void(bool, const std::string&)> cb) {
+    GetAccountIdByName(name, [this, cb](bool ok, const std::string &acc_id){
+        auto j = json::array();
+        j.push_back(acc_id);
+        auto id = GetNextId();
+        auto data = BuildRequestJson("get_witness_by_account", id, j);
+        qDebug() << data.c_str();
+        if (!CallServer(id, data, [cb](bool, const json &res){
+            qDebug() << "witness:\n" << res.dump(2).c_str();
+            cb(true, res["vote_id"].get<std::string>());
+        })) {
+            cb(false, "");
         }
     });
 }

@@ -9,6 +9,7 @@
 #include <QClipboard>
 #include <QStandardPaths>
 #include <QFileDialog>
+#include "witnessvotedialog.h"
 
 using json = nlohmann::json;
 
@@ -96,7 +97,7 @@ void PiHomeWidget::on_buttonImport_clicked()
 
 void PiHomeWidget::on_buttonAbout_clicked()
 {
-    QMessageBox::about(this, "About", "π cold wallet.\nv0.1.1\n\n\n© pidiscovery\n2016-2018");
+    QMessageBox::about(this, "About", "π cold wallet.\nv0.1.2\n\n\n© pidiscovery\n2016-2018");
 }
 
 void PiHomeWidget::on_buttonCopyAddress_clicked()
@@ -179,4 +180,24 @@ void PiHomeWidget::on_buttonTransfer_clicked()
 void PiHomeWidget::on_buttonRefreshBalance_clicked()
 {
     UpdateBalance();
+}
+
+void PiHomeWidget::on_commandLinkButtonVote_clicked()
+{
+    WitnessVoteDialog dlg;
+    dlg.exec();
+
+    std::string witness_name = dlg.GetWitness();
+    if (witness_name == "") {
+        return;
+    }
+
+    auto wallet = PiWallet::GetWallet();
+    client->VoteForWitness(wallet->CurrentPivateKey(), wallet->CurrentAccountName(), witness_name, true, [this](bool ok){
+        if (ok) {
+            QMessageBox::information(this, "info", "vote ok.");
+        } else {
+            QMessageBox::warning(this, "warning", "vote fail.");
+        }
+    });
 }

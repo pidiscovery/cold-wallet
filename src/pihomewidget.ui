@@ -452,6 +452,23 @@
     </item>
    </layout>
   </widget>
+  <widget class="QCommandLinkButton" name="commandLinkButtonVote">
+   <property name="geometry">
+    <rect>
+     <x>520</x>
+     <y>250</y>
+     <width>81</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Vote</string>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/res/icons/vote.png</normaloff>:/icons/res/icons/vote.png</iconset>
+   </property>
+  </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
